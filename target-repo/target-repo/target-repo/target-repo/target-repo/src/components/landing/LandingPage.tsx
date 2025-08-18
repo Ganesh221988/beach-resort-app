@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Calendar, Users, Star, ChevronRight, ChevronDown, Menu, X, User, Heart, Shield, Award, Globe } from 'lucide-react';
-import { mockEvents } from '../../data/mockData';
+import { Search, MapPin, Calendar, Users, Star, ChevronRight, Menu, X, User, Heart, Shield, Award, Globe } from 'lucide-react';
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -149,12 +148,7 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                 <a href="#destinations" className="text-gray-700 hover:text-orange-600 font-medium">Destinations</a>
                 <a href="#properties" className="text-gray-700 hover:text-orange-600 font-medium">Properties</a>
                 <a href="#about" className="text-gray-700 hover:text-orange-600 font-medium">About</a>
-               <a
-    href="#contact"
-    className="text-gray-700 hover:text-orange-600 font-medium"
-  >
-    Contact
-                </a>
+                <a href="#contact" className="text-gray-700 hover:text-orange-600 font-medium">Contact</a>
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   <button
                     onClick={onLogin}
