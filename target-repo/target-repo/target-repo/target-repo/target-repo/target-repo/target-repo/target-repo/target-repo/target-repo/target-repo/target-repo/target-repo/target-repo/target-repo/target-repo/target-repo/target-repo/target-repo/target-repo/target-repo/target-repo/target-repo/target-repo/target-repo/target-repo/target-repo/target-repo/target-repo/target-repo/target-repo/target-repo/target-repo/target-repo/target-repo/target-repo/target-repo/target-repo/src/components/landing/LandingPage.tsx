@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Calendar, Users, Star, ChevronRight, ChevronDown, Menu, X, User, Heart, Shield, Award, Globe } from 'lucide-react';
 import { mockEvents } from '../../data/mockData';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -8,8 +9,10 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
+  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEventsOpen, setIsEventsOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [searchData, setSearchData] = useState({
     selectedEvent: '',
     checkIn: '',
@@ -20,28 +23,28 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
 
   const featuredDestinations = [
     {
-      name: 'Goa',
+      name: 'Weddings',
       properties: 245,
-      image: 'https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=800',
-      description: 'Beach paradise with luxury resorts'
+      image: 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=800',
+      description: 'Dream venues for your perfect wedding day'
     },
     {
-      name: 'Manali',
+      name: 'Corporate Events',
       properties: 156,
-      image: 'https://images.pexels.com/photos/1562058/pexels-photo-1562058.jpeg?auto=compress&cs=tinysrgb&w=800',
-      description: 'Mountain retreats and hill stations'
+      image: 'https://images.pexels.com/photos/1181396/pexels-photo-1181396.jpeg?auto=compress&cs=tinysrgb&w=800',
+      description: 'Professional venues for business gatherings'
     },
     {
-      name: 'Udaipur',
+      name: 'Family Reunions',
       properties: 89,
-      image: 'https://images.pexels.com/photos/3881104/pexels-photo-3881104.jpeg?auto=compress&cs=tinysrgb&w=800',
-      description: 'Royal palaces and lake views'
+      image: 'https://images.pexels.com/photos/1128318/pexels-photo-1128318.jpeg?auto=compress&cs=tinysrgb&w=800',
+      description: 'Spacious venues for family celebrations'
     },
     {
-      name: 'Kerala',
+      name: 'Team Outings',
       properties: 198,
-      image: 'https://images.pexels.com/photos/962464/pexels-photo-962464.jpeg?auto=compress&cs=tinysrgb&w=800',
-      description: 'Backwaters and tropical escapes'
+      image: 'https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg?auto=compress&cs=tinysrgb&w=800',
+      description: 'Perfect locations for team building activities'
     }
   ];
 
@@ -90,8 +93,55 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to signup for demo
-    onSignup();
+    // Check if user is logged in
+    if (!user) {
+      onLogin();
+      return;
+    }
+    // If logged in, proceed with search (would normally navigate to search results)
+    console.log('Searching with:', searchData);
+  };
+
+  const handleFavoriteClick = (propertyId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      // Not logged in, show login page
+      onLogin();
+      return;
+    }
+    
+    // User is logged in, add to favorites
+    console.log(`Adding property ${propertyId} to favorites for user ${user.id}`);
+    // TODO: Implement actual favorite functionality with database
+    alert('Property added to favorites!');
+  };
+
+  const handleBookNow = (propertyId: number) => {
+    if (!user) {
+      // Not logged in, show login page
+      onLogin();
+      return;
+    }
+    
+    // Check if user is customer or broker
+    if (user.role !== 'customer' && user.role !== 'broker') {
+      alert('Only customers and brokers can make bookings.');
+      return;
+    }
+    
+    // User is logged in and has permission, proceed with booking
+    console.log(`Starting booking for property ${propertyId} by user ${user.id} (${user.role})`);
+    // TODO: Implement actual booking flow
+    alert(`Booking initiated for property ${propertyId}!`);
+  };
+
+  const handlePropertyClick = (property: any) => {
+    setSelectedProperty(property);
+  };
+
+  const closePropertyDetails = () => {
+    setSelectedProperty(null);
   };
 
   return (
@@ -332,31 +382,35 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
       </section>
 
       {/* Featured Destinations */}
-      <section id="destinations" className="py-20 bg-gray-50">
+      <section id="events" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Popular Destinations</h2>
-            <p className="text-xl text-gray-600">Explore our most loved destinations across India</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Popular Events</h2>
+            <p className="text-xl text-gray-600">Explore our most loved celebrations</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredDestinations.map((destination, index) => (
+            {featuredDestinations.map((event, index) => (
               <div 
                 key={index} 
                 className="group cursor-pointer"
-                onClick={onSignup}
+                onClick={() => {
+                  // Show event-related properties without authentication
+                  console.log(`Showing venues for ${event.name}`);
+                  // TODO: Implement event-based property filtering
+                }}
               >
                 <div className="relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                   <img
-                    src={destination.image}
-                    alt={destination.name}
+                    src={event.image}
+                    alt={event.name}
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="text-xl font-bold mb-1">{destination.name}</h3>
-                    <p className="text-sm opacity-90">{destination.properties} properties</p>
-                    <p className="text-xs opacity-75">{destination.description}</p>
+                    <h3 className="text-xl font-bold mb-1">{event.name}</h3>
+                    <p className="text-sm opacity-90">{event.properties} venues</p>
+                    <p className="text-xs opacity-75">{event.description}</p>
                   </div>
                 </div>
               </div>
@@ -375,7 +429,11 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProperties.map((property) => (
-              <div key={property.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+              <div 
+                key={property.id} 
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer"
+                onClick={() => handlePropertyClick(property)}
+              >
                 <div className="relative">
                   <img
                     src={property.image}
@@ -385,7 +443,7 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSignup();
+                      handleFavoriteClick(property.id, e);
                     }}
                     className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
                   >
@@ -434,7 +492,7 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                   </div>
                   
                   <button 
-                    onClick={onSignup}
+                   onClick={onLogin}
                     className="w-full mt-3 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors"
                   >
                     Book Now
@@ -473,7 +531,13 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{event.name}</h3>
                   <p className="text-gray-600 mb-4">{event.description}</p>
                   <button 
-                    onClick={onSignup}
+                    onClick={() => {
+                      if (!user) {
+                        onLogin();
+                      } else {
+                        console.log(`Finding venues for ${event.name}`);
+                      }
+                    }}
                     className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors"
                   >
                     Find Venues
@@ -559,7 +623,7 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                 </div>
               </div>
               <button 
-                onClick={onSignup}
+               onClick={onLogin}
                 className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-colors"
               >
                 Join Our Community
@@ -665,7 +729,7 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                 <p>📍 Mumbai, Maharashtra, India</p>
                 <div className="mt-4">
                   <button 
-                    onClick={onSignup}
+                   onClick={onLogin}
                     className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors"
                   >
                     Contact Us
@@ -680,6 +744,102 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
           </div>
         </div>
       </footer>
+
+      {/* Property Details Modal */}
+      {selectedProperty && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">{selectedProperty.name}</h2>
+              <button
+                onClick={closePropertyDetails}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Property Images */}
+                <div>
+                  <img
+                    src={selectedProperty.image}
+                    alt={selectedProperty.name}
+                    className="w-full h-64 object-cover rounded-xl mb-4"
+                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Additional images would go here */}
+                    <img src={selectedProperty.image} alt="Gallery" className="w-full h-20 object-cover rounded-lg" />
+                    <img src={selectedProperty.image} alt="Gallery" className="w-full h-20 object-cover rounded-lg" />
+                    <img src={selectedProperty.image} alt="Gallery" className="w-full h-20 object-cover rounded-lg" />
+                  </div>
+                </div>
+
+                {/* Property Details */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <MapPin className="h-5 w-5 text-gray-500" />
+                    <span className="text-gray-600">{selectedProperty.location}</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4 mb-6">
+                    <div className="flex items-center space-x-1">
+                      <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                      <span className="font-semibold">{selectedProperty.rating}</span>
+                      <span className="text-gray-600">({selectedProperty.reviews} reviews)</span>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Amenities</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProperty.amenities.map((amenity: string, idx: number) => (
+                        <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                    </div>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+                    <p className="text-gray-600">
+                      Experience luxury and comfort at {selectedProperty.name}. This beautiful property offers 
+                      stunning views and world-class amenities for an unforgettable stay. Perfect for 
+                      {selectedProperty.name.includes('Villa') ? ' families and groups' : 
+                       selectedProperty.name.includes('Resort') ? ' romantic getaways' : 
+                       ' business and leisure travelers'}.
+                    </p>
+                  </div>
+                  </div>
+                  <div className="border-t border-gray-200 pt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <span className="text-3xl font-bold text-gray-900">₹{selectedProperty.price.toLocaleString()}</span>
+                        <span className="text-gray-600"> /night</span>
+                      </div>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFavoriteClick(selectedProperty.id, e);
+                        }}
+                        className="p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                      >
+                        <Heart className="h-5 w-5 text-gray-600 hover:text-red-500" />
+                      </button>
+                    </div>
+                    
+                    <button 
+                      onClick={() => handleBookNow(selectedProperty.id)}
+                      className="w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                      Book Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
