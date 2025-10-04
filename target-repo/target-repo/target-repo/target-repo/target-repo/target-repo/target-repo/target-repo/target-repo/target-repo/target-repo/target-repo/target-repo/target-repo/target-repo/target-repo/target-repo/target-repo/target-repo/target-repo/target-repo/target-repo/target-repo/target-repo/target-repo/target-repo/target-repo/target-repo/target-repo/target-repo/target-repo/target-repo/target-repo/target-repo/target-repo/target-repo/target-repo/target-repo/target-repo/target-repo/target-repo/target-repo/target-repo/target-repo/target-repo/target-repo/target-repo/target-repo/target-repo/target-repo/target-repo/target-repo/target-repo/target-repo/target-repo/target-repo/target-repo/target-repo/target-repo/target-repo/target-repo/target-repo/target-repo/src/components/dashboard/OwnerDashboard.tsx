@@ -11,7 +11,6 @@ import { PropertyForm } from '../property/PropertyForm';
 import { PropertyCalendar } from '../calendar/PropertyCalendar';
 import { BookingFlow } from '../booking/BookingFlow';
 import { Property, Booking } from '../../types';
-import { SocialMediaMarketing } from '../owner/SocialMediaMarketing';
 
 export function OwnerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -41,7 +40,6 @@ export function OwnerDashboard() {
     { id: 'marketing', label: 'Social Media Marketing', icon: Camera }
   ];
 
-  
   // Mock broker bookings made by this owner
   const ownerBrokerBookings = [
     {
@@ -110,10 +108,6 @@ export function OwnerDashboard() {
     console.log('Creating broker booking:', bookingData);
     setShowOtherBookingFlow(false);
     setSelectedOtherProperty(null);
-  };
-  
-  const requestCommissionPayout = () => {
-    alert('Commission payout request submitted successfully!');
   };
 
   const renderOverview = () => (
@@ -342,7 +336,7 @@ export function OwnerDashboard() {
               <div key={booking.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                 <div>
                   <p className="font-medium text-gray-900">Booking #{booking.id.slice(0, 8)}</p>
-                  <p className="text-sm text-gray-600">{booking.property_title}</p>
+                  <p className="text-sm text-gray-600">{booking.properties?.title || 'Property'}</p>
                   <p className="text-xs text-gray-500">{new Date(booking.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
@@ -400,131 +394,6 @@ export function OwnerDashboard() {
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">ECR Beach Resorts - Owner</h1>
-              <p className="text-gray-600">Manage your properties and bookings</p>
-            </div>
-            <SubscriptionBadge 
-              planName="Owner Pro" 
-              expiryDate="2024-04-15T00:00:00Z" 
-              userRole="owner" 
-            />
-          </div>
-        </div>
-
-        <div className="flex space-x-1 mb-8 bg-gray-200 rounded-lg p-1">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'properties' && renderProperties()}
-        {activeTab === 'bookings' && renderBookings()}
-        {activeTab === 'calendar' && renderCalendar()}
-        {activeTab === 'earnings' && renderEarnings()}
-        {activeTab === 'other-bookings' && renderOtherBookings()}
-        {activeTab === 'marketing' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Social Media Marketing</h2>
-              <button
-                onClick={() => setShowMarketingModal(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
-              >
-                <Camera className="h-4 w-4" />
-                <span>Setup Marketing</span>
-              </button>
-            </div>
-            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-              <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Automated Social Media Marketing</h3>
-              <p className="text-gray-600 mb-6">
-                Set up automated posting to Instagram and Facebook to promote your properties.
-              </p>
-              <button
-                onClick={() => setShowMarketingModal(true)}
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
-              >
-                Get Started
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      {/* Property Form Modal */}
-      {showPropertyForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
-          <PropertyForm
-            property={editingProperty || undefined}
-            onSave={handlePropertySave}
-            onCancel={() => {
-              setShowPropertyForm(false);
-              setEditingProperty(null);
-            }}
-          />
-        </div>
-      )}
-      
-      {/* Manual Booking Flow */}
-      {showBookingFlow && (ownerProperties || []).length > 0 && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
-          <BookingFlow
-            property={(ownerProperties || [])[0]}
-            properties={ownerProperties || []}
-            onComplete={handleBookingComplete}
-            onCancel={() => setShowBookingFlow(false)}
-            userRole="customer" // Owner creating booking for customer
-            isManualBooking={true}
-          />
-        </div>
-      )}
-      
-      {/* Other Property Booking Flow */}
-      {showOtherBookingFlow && selectedOtherProperty && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
-          <BookingFlow
-            property={selectedOtherProperty}
-            onComplete={handleOtherBookingComplete}
-            onCancel={() => {
-              setShowOtherBookingFlow(false);
-              setSelectedOtherProperty(null);
-            }}
-            userRole="broker"
-          />
-        </div>
-      )}
-      
-      {/* Social Media Marketing Modal */}
-      {showMarketingModal && (
-        <SocialMediaMarketing
-          properties={ownerProperties || []}
-          onClose={() => setShowMarketingModal(false)}
-        />
-      )}
-    </div>
-  );
-
   const renderOtherBookings = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -576,6 +445,139 @@ export function OwnerDashboard() {
           ))}
         </div>
       </div>
+    </div>
+  );
+
+  const renderMarketing = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Social Media Marketing</h2>
+        <button
+          onClick={() => setShowMarketingModal(true)}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+        >
+          <Camera className="h-4 w-4" />
+          <span>Setup Marketing</span>
+        </button>
+      </div>
+      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+        <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Automated Social Media Marketing</h3>
+        <p className="text-gray-600 mb-6">
+          Set up automated posting to Instagram and Facebook to promote your properties.
+        </p>
+        <button
+          onClick={() => setShowMarketingModal(true)}
+          className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+        >
+          Get Started
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">ECR Beach Resorts - Owner</h1>
+              <p className="text-gray-600">Manage your properties and bookings</p>
+            </div>
+            <SubscriptionBadge 
+              planName="Owner Pro" 
+              expiryDate="2024-04-15T00:00:00Z" 
+              userRole="owner" 
+            />
+          </div>
+        </div>
+
+        <div className="flex space-x-1 mb-8 bg-gray-200 rounded-lg p-1">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {activeTab === 'overview' && renderOverview()}
+        {activeTab === 'properties' && renderProperties()}
+        {activeTab === 'bookings' && renderBookings()}
+        {activeTab === 'calendar' && renderCalendar()}
+        {activeTab === 'earnings' && renderEarnings()}
+        {activeTab === 'other-bookings' && renderOtherBookings()}
+        {activeTab === 'marketing' && renderMarketing()}
+      </div>
+      
+      {/* Property Form Modal */}
+      {showPropertyForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+          <PropertyForm
+            property={editingProperty || undefined}
+            onSave={handlePropertySave}
+            onCancel={() => {
+              setShowPropertyForm(false);
+              setEditingProperty(null);
+            }}
+          />
+        </div>
+      )}
+      
+      {/* Manual Booking Flow */}
+      {showBookingFlow && (ownerProperties || []).length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+          <BookingFlow
+            property={(ownerProperties || [])[0]}
+            properties={ownerProperties || []}
+            onComplete={handleBookingComplete}
+            onCancel={() => setShowBookingFlow(false)}
+            userRole="customer"
+            isManualBooking={true}
+          />
+        </div>
+      )}
+      
+      {/* Other Property Booking Flow */}
+      {showOtherBookingFlow && selectedOtherProperty && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+          <BookingFlow
+            property={selectedOtherProperty}
+            onComplete={handleOtherBookingComplete}
+            onCancel={() => {
+              setShowOtherBookingFlow(false);
+              setSelectedOtherProperty(null);
+            }}
+            userRole="broker"
+          />
+        </div>
+      )}
+      
+      {/* Social Media Marketing Modal */}
+      {showMarketingModal && (
+        <div className="bg-white rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Social Media Marketing</h3>
+          <p className="text-gray-600 mb-4">Marketing features will be available soon.</p>
+          <button
+            onClick={() => setShowMarketingModal(false)}
+            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      )}
     </div>
   );
 }
