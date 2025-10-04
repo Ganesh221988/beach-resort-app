@@ -138,7 +138,10 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
   };
 
   const handlePropertyClick = (property: any) => {
-    // Convert featured property to full Property object
+    return convertFeaturedToFullProperty(property);
+  };
+
+  const convertFeaturedToFullProperty = (property: any): Property => {
     const fullProperty: Property = {
       id: property.id.toString(),
       owner_id: 'demo-owner',
@@ -185,7 +188,7 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
       created_at: '2024-01-01T00:00:00Z',
       status: 'active' as const
     };
-    setSelectedProperty(fullProperty);
+    return fullProperty;
   };
 
   const closePropertyDetails = () => {
@@ -479,14 +482,17 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
             {featuredProperties.map((property) => (
               <div 
                 key={property.id} 
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer"
-                onClick={() => handlePropertyClick(property)}
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="relative">
                   <img
                     src={property.image}
                     alt={property.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                    onClick={() => {
+                      const fullProperty = convertFeaturedToFullProperty(property);
+                      setSelectedProperty(fullProperty);
+                    }}
                   />
                   <button 
                     onClick={(e) => {
@@ -502,7 +508,13 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div 
+                  className="p-4 cursor-pointer"
+                  onClick={() => {
+                    const fullProperty = convertFeaturedToFullProperty(property);
+                    setSelectedProperty(fullProperty);
+                  }}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-gray-900 truncate">{property.name}</h3>
                     <div className="flex items-center space-x-1">
@@ -538,10 +550,28 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                       {property.reviews} reviews
                     </div>
                   </div>
-                  
+                </div>
+                
+                <div className="px-4 pb-4">
                   <button 
-                   onClick={onLogin}
-                    className="w-full mt-3 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!user) {
+                        onLogin();
+                        return;
+                      }
+                      
+                      if (user.role !== 'customer' && user.role !== 'broker') {
+                        alert('Only customers and brokers can make bookings.');
+                        return;
+                      }
+                      
+                      const fullProperty = convertFeaturedToFullProperty(property);
+                      setSelectedProperty(fullProperty);
+                      // TODO: Open booking flow
+                      alert('Booking flow will open here');
+                    }}
+                    className="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors"
                   >
                     Book Now
                   </button>
