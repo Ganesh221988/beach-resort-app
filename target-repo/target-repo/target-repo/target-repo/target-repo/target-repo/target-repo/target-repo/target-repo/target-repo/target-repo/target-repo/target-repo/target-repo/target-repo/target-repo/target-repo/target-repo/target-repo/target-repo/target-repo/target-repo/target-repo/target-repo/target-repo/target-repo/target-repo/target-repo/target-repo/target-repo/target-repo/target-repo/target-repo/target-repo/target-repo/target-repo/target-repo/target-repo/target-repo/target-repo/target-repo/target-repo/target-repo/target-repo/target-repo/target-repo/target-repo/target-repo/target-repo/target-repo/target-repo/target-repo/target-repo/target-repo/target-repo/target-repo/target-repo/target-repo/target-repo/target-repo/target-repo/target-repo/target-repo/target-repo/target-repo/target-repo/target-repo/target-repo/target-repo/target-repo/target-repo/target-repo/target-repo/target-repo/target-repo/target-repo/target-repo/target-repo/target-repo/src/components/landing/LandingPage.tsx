@@ -27,6 +27,17 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
     children: 0
   });
 
+  // Handle event venue search
+  const handleEventVenueSearch = (eventName: string) => {
+    setSearchData(prev => ({ ...prev, selectedEvent: eventName }));
+    setShowSearchResults(true);
+  };
+
+  // Handle featured property click
+  const handleFeaturedPropertyClick = (property: any) => {
+    const fullProperty = convertFeaturedToFullProperty(property);
+    setSelectedProperty(fullProperty);
+  };
   const featuredDestinations = [
     {
       name: 'Weddings',
@@ -392,17 +403,14 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Adults</label>
-                    <div className="relative">
-                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        type="number"
-                        value={searchData.adults}
-                        onChange={(e) => setSearchData(prev => ({ ...prev, adults: parseInt(e.target.value) || 1 }))}
-                        min="1"
-                        max="20"
-                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      />
-                    </div>
+                    <input
+                      type="number"
+                      value={searchData.adults}
+                      onChange={(e) => setSearchData(prev => ({ ...prev, adults: parseInt(e.target.value) || 1 }))}
+                      min="1"
+                      max="10"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    />
                   </div>
                   <div className="relative">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Children</label>
@@ -489,10 +497,6 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                     src={property.image}
                     alt={property.name}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
-                    onClick={() => {
-                      const fullProperty = convertFeaturedToFullProperty(property);
-                      setSelectedProperty(fullProperty);
-                    }}
                   />
                   <button 
                     onClick={(e) => {
@@ -509,11 +513,7 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                 </div>
 
                 <div 
-                  className="p-4 cursor-pointer"
-                  onClick={() => {
-                    const fullProperty = convertFeaturedToFullProperty(property);
-                    setSelectedProperty(fullProperty);
-                  }}
+                  className="p-4"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-gray-900 truncate">{property.name}</h3>
@@ -550,6 +550,16 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                       {property.reviews} reviews
                     </div>
                   </div>
+                  
+                  <button 
+                    onClick={() => {
+                      const fullProperty = convertFeaturedToFullProperty(property);
+                      setSelectedProperty(fullProperty);
+                    }}
+                    className="w-full mt-3 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                  >
+                    View Details
+                  </button>
                 </div>
                 
                 <div className="px-4 pb-4">
