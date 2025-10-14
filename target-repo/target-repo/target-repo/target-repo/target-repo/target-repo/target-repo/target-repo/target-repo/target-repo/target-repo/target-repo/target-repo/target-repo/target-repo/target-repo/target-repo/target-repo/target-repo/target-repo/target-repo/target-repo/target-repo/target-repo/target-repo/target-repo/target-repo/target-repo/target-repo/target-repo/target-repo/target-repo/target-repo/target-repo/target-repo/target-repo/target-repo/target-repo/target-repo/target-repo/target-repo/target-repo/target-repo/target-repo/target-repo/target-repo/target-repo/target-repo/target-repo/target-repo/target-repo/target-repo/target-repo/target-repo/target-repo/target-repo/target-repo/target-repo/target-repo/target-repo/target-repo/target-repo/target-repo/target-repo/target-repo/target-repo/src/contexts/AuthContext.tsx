@@ -23,7 +23,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  console.log('AuthProvider rendering', { user, isLoading });
+
   useEffect(() => {
+    console.log('AuthProvider useEffect running');
     // Get initial session
     auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -31,6 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setIsLoading(false);
       }
+    }).catch((error) => {
+      console.error('Error getting session:', error);
+      setIsLoading(false);
     });
 
     // Listen for auth changes
@@ -52,14 +58,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        setIsLoading(false);
+        return;
+      }
 
       if (data) {
         // Get email from auth user
         const { data: authUser } = await auth.getUser();
-        
+
         setUser({
           id: data.id,
           name: data.name,
