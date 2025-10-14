@@ -149,6 +149,9 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
           </div>
 
           <form key={formKey} onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+            <input type="text" name="fake-username" autoComplete="username" style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} tabIndex={-1} />
+            <input type="password" name="fake-password" autoComplete="new-password" style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} tabIndex={-1} />
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 I want to join as:
@@ -190,13 +193,17 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="name"
-                  name="name"
+                  name="signup-name-field"
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter your full name"
-                  autoComplete="off"
+                  autoComplete="nope"
+                  data-lpignore="true"
+                  data-form-type="other"
+                  readOnly
                   required
                 />
               </div>
@@ -212,13 +219,17 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="email"
-                  name="email"
-                  type="email"
+                  name="signup-email-field"
+                  type="text"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter your email"
-                  autoComplete="off"
+                  autoComplete="nope"
+                  data-lpignore="true"
+                  data-form-type="other"
+                  readOnly
                   required
                 />
               </div>
@@ -234,13 +245,17 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="phone"
-                  name="phone"
-                  type="tel"
+                  name="signup-phone-field"
+                  type="text"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="+91 98765 43210"
-                  autoComplete="off"
+                  autoComplete="nope"
+                  data-lpignore="true"
+                  data-form-type="other"
+                  readOnly
                   required
                 />
               </div>
@@ -256,13 +271,17 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="password"
-                  name="password"
+                  name="signup-password-field"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
                   className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Create a password"
-                  autoComplete="new-password"
+                  autoComplete="new-pwd"
+                  data-lpignore="true"
+                  data-form-type="other"
+                  readOnly
                   required
                 />
                 <button
@@ -289,13 +308,17 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="confirmPassword"
-                  name="confirmPassword"
+                  name="signup-confirm-password-field"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
                   className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Confirm your password"
-                  autoComplete="new-password"
+                  autoComplete="new-pwd"
+                  data-lpignore="true"
+                  data-form-type="other"
+                  readOnly
                   required
                 />
                 <button
