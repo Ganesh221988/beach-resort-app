@@ -40,33 +40,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const switchRole = (role: 'admin' | 'owner' | 'broker' | 'customer') => {
+    if (user) {
+      setUser({ ...user, role });
+    }
+  };
+
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
-      // Demo login - simulate different user roles
-      let role: 'admin' | 'owner' | 'broker' | 'customer' = 'customer';
-      let name = 'Demo User';
+      // Check if this is a login after signup
+      const signupData = sessionStorage.getItem('signupData');
+      let userData = null;
       
-      if (email.includes('admin')) {
-        role = 'admin';
-        name = 'Admin User';
-      } else if (email.includes('owner')) {
-        role = 'owner';
-        name = 'John Smith (Owner)';
-      } else if (email.includes('broker')) {
-        role = 'broker';
-        name = 'Sarah Wilson (Broker)';
-      } else {
-        role = 'customer';
-        name = 'David Johnson (Customer)';
+      if (signupData) {
+        const parsedSignupData = JSON.parse(signupData);
+        if (parsedSignupData.email === email) {
+          userData = parsedSignupData;
+          sessionStorage.removeItem('signupData'); // Clear after use
+        }
+      }
+      
+      // If not from signup, use demo login logic
+      if (!userData) {
+        let role: 'admin' | 'owner' | 'broker' | 'customer' = 'customer';
+        let name = 'Demo User';
+        
+        if (email.includes('admin')) {
+          role = 'admin';
+          name = 'Admin User';
+        } else if (email.includes('owner')) {
+          role = 'owner';
+          name = 'John Smith (Owner)';
+        } else if (email.includes('broker')) {
+          role = 'broker';
+          name = 'Sarah Wilson (Broker)';
+        } else {
+          role = 'customer';
+          name = 'David Johnson (Customer)';
+        }
+        
+        userData = { name, email, role };
       }
 
       const demoUser: User = {
         id: generateUUID(),
-        name,
-        email,
-        role
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        accountActivated: false,
+        kycStatus: 'pending'
       };
 
       setUser(demoUser);
@@ -89,15 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     
     try {
-      const demoUser: User = {
-        id: generateUUID(),
-        name: userData.name,
-        email: userData.email,
-        role: userData.role
-      };
-
-      // Don't automatically log in after signup
-      // setUser(demoUser);
+      // Store signup data for later login
+      sessionStorage.setItem('signupData', JSON.stringify(userData));
       return true;
     } catch (error) {
       console.error('Signup error:', error);
@@ -109,12 +126,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null);
-  };
-
-  const switchRole = (role: 'admin' | 'owner' | 'broker' | 'customer') => {
-    if (user?.role === 'admin') {
-      setUser(prev => prev ? { ...prev, role } : null);
-    }
   };
 
   return (

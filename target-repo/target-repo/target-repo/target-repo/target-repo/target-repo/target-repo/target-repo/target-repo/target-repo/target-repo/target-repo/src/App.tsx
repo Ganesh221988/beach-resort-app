@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LandingPage } from './components/landing/LandingPage';
 import { LoginPage } from './components/auth/LoginPage';
-import { SignupPage } from './components/auth/SignupPage';
+import SignupPage from './components/auth/SignupPage';
 import { AdminDashboard } from './components/dashboard/AdminDashboard';
 import { OwnerDashboard } from './components/dashboard/OwnerDashboard';
 import { BrokerDashboard } from './components/dashboard/BrokerDashboard';
@@ -48,10 +48,6 @@ function AppContent() {
           onSignup={async (userData) => {
             try {
               const success = await signup(userData);
-              if (success) {
-                // User will be automatically logged in after successful signup
-                // The dashboard will be shown based on their role
-              }
               return success;
             } catch (error) {
               console.error('Signup error in App:', error);
