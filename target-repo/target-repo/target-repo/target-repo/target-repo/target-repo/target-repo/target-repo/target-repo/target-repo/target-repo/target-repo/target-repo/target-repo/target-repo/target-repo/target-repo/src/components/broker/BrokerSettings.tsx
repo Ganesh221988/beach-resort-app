@@ -357,7 +357,7 @@ export function BrokerSettings({ onClose }: BrokerSettingsProps) {
       </div>
       
       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-        <h4 className="font-medium text-green-900 mb-2">Email Marketing for Brokers:</h4>
+        <h4 className="font-medium text-green-900 mb-2">Bulk Email Marketing for Brokers:</h4>
         <ul className="text-sm text-green-700 space-y-1">
           <li>• Send booking confirmations to customers</li>
           <li>• Share travel tips and destination guides</li>
@@ -365,14 +365,17 @@ export function BrokerSettings({ onClose }: BrokerSettingsProps) {
           <li>• Build customer loyalty programs</li>
           <li>• Send follow-up surveys and feedback requests</li>
           <li>• Create seasonal travel campaigns</li>
+          <li>• Send bulk promotional emails to customer lists</li>
+          <li>• Automated email sequences for lead nurturing</li>
         </ul>
       </div>
       
       <button
         onClick={handleSaveMailchimp}
+        disabled={loading}
         className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
       >
-        Save Email Settings
+        {loading ? 'Saving...' : 'Save Mailchimp Settings'}
       </button>
     </div>
   );
