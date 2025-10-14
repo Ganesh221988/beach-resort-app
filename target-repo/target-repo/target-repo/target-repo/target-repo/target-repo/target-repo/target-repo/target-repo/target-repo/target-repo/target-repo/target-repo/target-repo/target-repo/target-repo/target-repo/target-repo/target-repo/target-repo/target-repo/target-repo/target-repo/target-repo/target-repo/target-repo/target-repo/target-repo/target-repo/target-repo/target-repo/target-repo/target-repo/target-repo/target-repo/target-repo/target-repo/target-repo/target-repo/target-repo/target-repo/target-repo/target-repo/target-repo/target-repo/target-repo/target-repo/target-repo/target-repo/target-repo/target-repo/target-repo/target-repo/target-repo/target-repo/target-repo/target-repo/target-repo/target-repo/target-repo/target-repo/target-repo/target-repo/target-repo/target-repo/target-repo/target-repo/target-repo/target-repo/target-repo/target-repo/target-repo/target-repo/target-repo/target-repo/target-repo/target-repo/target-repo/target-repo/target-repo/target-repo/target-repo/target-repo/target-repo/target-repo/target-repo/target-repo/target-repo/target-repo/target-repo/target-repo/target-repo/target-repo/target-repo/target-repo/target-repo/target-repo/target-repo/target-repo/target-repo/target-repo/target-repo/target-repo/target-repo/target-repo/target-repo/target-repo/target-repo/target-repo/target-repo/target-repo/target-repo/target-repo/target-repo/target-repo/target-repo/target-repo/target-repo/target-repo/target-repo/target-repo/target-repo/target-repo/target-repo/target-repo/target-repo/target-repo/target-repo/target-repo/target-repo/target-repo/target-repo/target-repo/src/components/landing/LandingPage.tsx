@@ -178,12 +178,12 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                     <span>Events</span>
                     <ChevronDown className={`h-4 w-4 transition-transform ${isEventsOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  {isEventsOpen && (
+                  {isEventsOpen && mockEvents && (
                     <div className="pl-4 space-y-2">
                       {mockEvents.map((event, index) => (
                         <a
                           key={index}
-                          href={`#event-${event.id}`}
+                          href="#events"
                           className="block text-sm text-gray-600 hover:text-orange-600"
                           onClick={() => {
                             setIsEventsOpen(false);
@@ -196,7 +196,6 @@ export function LandingPage({ onLogin, onSignup }: LandingPageProps) {
                     </div>
                   )}
                 </div>
-                <a href="#destinations" className="text-gray-700 hover:text-orange-600 font-medium">Destinations</a>
                 <a href="#properties" className="text-gray-700 hover:text-orange-600 font-medium">Properties</a>
                 <a href="#about" className="text-gray-700 hover:text-orange-600 font-medium">About</a>
                 <a
