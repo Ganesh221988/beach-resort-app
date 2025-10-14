@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, UserPlus, Mail, Lock, User, Phone, ArrowLeft, CheckCircle, X } from 'lucide-react';
 
 interface SignupPageProps {
@@ -14,41 +14,39 @@ interface SignupPageProps {
   isLoading: boolean;
 }
 
+const initialFormState = {
+  name: '',
+  email: '',
+  phone: '',
+  password: '',
+  confirmPassword: '',
+  role: 'customer' as 'customer' | 'owner' | 'broker',
+  agreeToTerms: false
+};
+
 export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin, isLoading }: SignupPageProps) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    role: 'customer' as 'customer' | 'owner' | 'broker',
-    agreeToTerms: false
-  });
+  const [formData, setFormData] = useState(initialFormState);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
-  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [formKey, setFormKey] = useState(0);
 
-  // Clear form on component mount
-  React.useEffect(() => {
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      confirmPassword: '',
-      role: 'customer',
-      agreeToTerms: false
-    });
+  console.log('SignupPage render - showSuccessModal:', showSuccessModal, 'formData:', formData);
+
+  // Reset form completely when component mounts
+  useEffect(() => {
+    setFormData({ ...initialFormState });
     setError('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setFormKey(prev => prev + 1);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (!formData.name || !formData.email || !formData.phone || !formData.password) {
       setError('Please fill in all required fields');
       return;
@@ -70,6 +68,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
     }
 
     try {
+      console.log('Starting signup...');
       const success = await onSignup({
         name: formData.name,
         email: formData.email,
@@ -78,24 +77,21 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
         role: formData.role
       });
 
+      console.log('Signup result:', success);
+
       if (success) {
-        // Store email for auto-fill on login page
+        console.log('Signup successful, showing modal...');
         sessionStorage.setItem('signupEmail', formData.email);
 
-        // Clear form
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          password: '',
-          confirmPassword: '',
-          role: 'customer',
-          agreeToTerms: false
-        });
+        setFormData({ ...initialFormState });
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+        setFormKey(prev => prev + 1);
 
-        // Show success modal
         setShowSuccessModal(true);
+        console.log('Modal state set to true');
       } else {
+        console.log('Signup failed');
         setError('Email ID already exists, use different email');
       }
     } catch (err) {
@@ -108,6 +104,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
     setShowSuccessModal(false);
     onSwitchToLogin();
   };
+
   const roleOptions = [
     { 
       value: 'customer', 
@@ -128,7 +125,6 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
       color: 'bg-green-100 text-green-700 border-green-200'
     }
   ];
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 flex items-center justify-center p-4">
@@ -152,8 +148,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Role Selection */}
+          <form key={formKey} onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 I want to join as:
@@ -185,7 +180,6 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
               </div>
             </div>
 
-            {/* Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name *
@@ -196,6 +190,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="name"
+                  name="name"
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -207,7 +202,6 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
               </div>
             </div>
 
-            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address *
@@ -218,6 +212,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="email"
+                  name="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
@@ -229,7 +224,6 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
               </div>
             </div>
 
-            {/* Phone */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                 Phone Number *
@@ -240,6 +234,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="phone"
+                  name="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
@@ -251,7 +246,6 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password *
@@ -262,6 +256,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
@@ -284,7 +279,6 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                 Confirm Password *
@@ -295,6 +289,7 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
                 </div>
                 <input
                   id="confirmPassword"
+                  name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
@@ -317,7 +312,6 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
               </div>
             </div>
 
-            {/* Terms Agreement */}
             <div className="flex items-start space-x-3">
               <input
                 id="agreeToTerms"
@@ -343,15 +337,15 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
 
             <button
               type="submit"
-              disabled={isLoading || checkingEmail || !formData.agreeToTerms}
+              disabled={isLoading || !formData.agreeToTerms}
               className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
-              {isLoading || checkingEmail ? (
+              {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <UserPlus className="h-5 w-5" />
               )}
-              <span>{checkingEmail ? 'Checking Email...' : isLoading ? 'Creating Account...' : 'Create Account'}</span>
+              <span>{isLoading ? 'Creating Account...' : 'Create Account'}</span>
             </button>
           </form>
 
@@ -369,15 +363,14 @@ export default function SignupPage({ onSignup, onBackToLanding, onSwitchToLogin,
         </div>
       </div>
 
-      {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative">
             <div className="p-8 text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="h-8 w-8 text-white" />
               </div>
-              
+
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Congratulations!</h3>
               <p className="text-lg text-gray-700 mb-6">
                 Your account has been created successfully. Welcome to ECR Beach Resorts Family!
